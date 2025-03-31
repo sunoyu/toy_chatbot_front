@@ -9,8 +9,8 @@
 
     <v-main>
       <v-container fluid class="fill-height pa-4">
-        <v-row>
-          <v-col>
+        <v-row class="fill-height">
+          <v-col class="d-flex flex-column fill-height">
             <ChatMessages
               :messages="messages"
               class="flex-grow-1 overflow-y-auto mb-4"
