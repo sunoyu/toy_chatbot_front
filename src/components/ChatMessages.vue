@@ -11,8 +11,9 @@
           :color="msg.role == 'user' ? 'primary' : 'grey lighten-2'"
           text-color="white"
           class="ma-1"
-          >{{ msg.text }}</v-chip
         >
+          {{ msg.text }}
+        </v-chip>
       </div>
       <div ref="scrollTarget" />
     </div>

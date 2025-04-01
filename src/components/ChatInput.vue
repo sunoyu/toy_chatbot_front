@@ -4,7 +4,7 @@
       <v-text-field
         v-model="input"
         label="메시지를 입력하세요"
-        @keydown.enter="send"
+        @keydown.enter.prevent="send"
       />
     </v-col>
     <v-col cols="2">
@@ -19,8 +19,9 @@ const emit = defineEmits(["send"]);
 const input = ref("");
 
 function send() {
-  if (!input.value) return;
-  emit("send", input.value);
+  const trimed = input.value.trim();
+  if (!trimed) return;
+  emit("send", trimed);
   input.value = "";
 }
 </script>
