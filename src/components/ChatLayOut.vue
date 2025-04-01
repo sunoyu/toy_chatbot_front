@@ -37,9 +37,18 @@ function addMessage(text) {
   messages.value.push({ role: "user", text });
   // 이후에 봇 응답이나 로딩 처리 추가 가능
 
+  const loadingMessage = { role: "bot", text: "..." };
+  messages.value.push(loadingMessage);
+
   // 봇 응답 시뮬레이션
   setTimeout(() => {
-    messages.value.push({ role: "bot", text: "네, 어떤 도움이 필요하신가요?" });
+    const index = messages.value.indexOf(loadingMessage);
+    if (index !== -1) {
+      messages.value[index] = {
+        role: "bot",
+        text: "네, 어떤 도움이 필요하신가요?",
+      };
+    }
   }, 1500);
 }
 </script>
