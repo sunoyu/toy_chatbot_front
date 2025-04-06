@@ -17,7 +17,7 @@
               indeterminate
               color="grey-lighten-1"
               size="16"
-            ></v-progress-circular>
+            />
           </template>
           <template v-else>
             {{ msg.text }}
