@@ -12,7 +12,16 @@
           text-color="white"
           class="ma-1"
         >
-          {{ msg.text }}
+          <template v-if="msg.isLoading">
+            <v-progress-circular
+              indeterminate
+              color="grey-lighten-1"
+              size="16"
+            ></v-progress-circular>
+          </template>
+          <template v-else>
+            {{ msg.text }}
+          </template>
         </v-chip>
       </div>
       <div ref="scrollTarget" />
