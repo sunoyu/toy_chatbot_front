@@ -20,7 +20,10 @@
             />
           </template>
           <template v-else>
-            {{ msg.text }}
+            <div class="d-flex flex-column">
+              <span> {{ msg.text }} </span>
+              <small class="text-caption text-right">{{ msg.time }}</small>
+            </div>
           </template>
         </v-chip>
       </div>
@@ -65,5 +68,10 @@ behavior: 'smooth' → 부드럽게 스르륵 내려감
   overflow-y: auto;
   flex-grow: 1;
   padding: 8px;
+}
+/* 흐리게 */
+small {
+  opacity: 0.7;
+  font-size: 0.75rem;
 }
 </style>

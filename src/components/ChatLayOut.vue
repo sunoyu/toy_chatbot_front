@@ -33,10 +33,10 @@ import { computed, ref } from "vue";
 import ChatMessages from "./ChatMessages.vue";
 import ChatInput from "./ChatInput.vue";
 
-const messages = ref([
-  { role: "user", text: "안녕하세요!" },
-  { role: "bot", text: "안녕하세요, 무엇을 도와드릴까요?" },
-]);
+// const messages = ref([
+//   { role: "user", text: "안녕하세요!" },
+//   { role: "bot", text: "안녕하세요, 무엇을 도와드릴까요?" },
+// ]);
 
 const chatRooms = ref([
   {
@@ -66,9 +66,13 @@ function addMessage(text) {
   const room = chatRooms.value.find((r) => r.id === selectedRoomId.value);
   if (!room) return;
 
-  room.messages.push({ role: "user", text });
+  room.messages.push({ role: "user", text, time: getCurrentTime() });
 
-  const loadingMessage = { role: "bot", isLoading: true };
+  const loadingMessage = {
+    role: "bot",
+    isLoading: true,
+    time: getCurrentTime(),
+  };
   room.messages.push(loadingMessage);
 
   // 봇 응답 시뮬레이션
@@ -78,8 +82,17 @@ function addMessage(text) {
       room.messages[index] = {
         role: "bot",
         text: "네, 어떤 도움이 필요하신가요?",
+        time: getCurrentTime(),
       };
     }
   }, 1500);
+}
+
+function getCurrentTime() {
+  const now = new Date();
+  return now.toLocaleTimeString("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 </script>
