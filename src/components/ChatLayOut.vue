@@ -3,6 +3,12 @@
     <v-navigation-drawer app permanent width="250">
       <v-list>
         <v-list-item
+          title="➕ 새 대화 시작"
+          @click="addNewRoom"
+          class="text-primary"
+        />
+
+        <v-list-item
           v-for="room in chatRooms"
           :key="room.id"
           :title="room.name"
@@ -94,5 +100,19 @@ function getCurrentTime() {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+function addNewRoom() {
+  const newId = Math.max(...chatRooms.value.map((r) => r.id)) + 1;
+  // map → [1, 5, 3]
+  // Math.max(...[1, 5, 3]) → 5
+  // newId = 5 + 1 = 6
+
+  const newRoom = {
+    id: newId,
+    name: `새 대화 ${newId}`,
+    messages: [],
+  };
+  chatRooms.value.push(newRoom);
+  selectedRoomId.value = newId;
 }
 </script>
