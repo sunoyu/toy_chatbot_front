@@ -14,7 +14,17 @@
           :title="room.name"
           @click="selectedRoomId = room.id"
           :active="selectedRoomId === room.id"
-        />
+        >
+          <v-btn
+            icon
+            @click="deleteCurrentRoom"
+            density="compact"
+            color="error"
+            class="ml-2"
+          >
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
@@ -35,7 +45,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import ChatMessages from "./ChatMessages.vue";
 import ChatInput from "./ChatInput.vue";
 
@@ -59,6 +69,19 @@ const chatRooms = ref([
     ],
   },
 ]);
+
+const stored = localStorage.getItem("chatRooms");
+if (stored) {
+  chatRooms.value = JSON.parse(stored);
+}
+
+watch(
+  chatRooms,
+  (newVal) => {
+    localStorage.setItem("chatRooms", JSON.stringify(newVal));
+  },
+  { deep: true }
+);
 
 const selectedRoomId = ref(1);
 
@@ -114,5 +137,24 @@ function addNewRoom() {
   };
   chatRooms.value.push(newRoom);
   selectedRoomId.value = newId;
+}
+
+function deleteCurrentRoom() {
+  const index = chatRooms.value.findIndex((r) => r.id === selectedRoomId.value);
+  //   chatRooms.value는 현재 대화방들의 배열
+  // findIndex()는 조건을 만족하는 첫 번째 요소의 인덱스를 반환
+  // r.id === selectedRoomId.value → 현재 선택된 방의 ID와 같은 방을 찾음
+  // 예: 선택된 방이 id 3이고 배열이 [1, 2, 3]이면 index는 2가 됨
+  if (index !== -1) {
+    chatRooms.value.splice(index, 1);
+    // 배열에서 해당 인덱스 위치의 요소를 1개 제거함
+    // 원본 배열이 직접 수정됨
+
+    if (chatRooms.value.length > 0) {
+      selectedRoomId.value = chatRooms.value[0].id;
+    } else {
+      selectedRoomId.value = null;
+    }
+  }
 }
 </script>
