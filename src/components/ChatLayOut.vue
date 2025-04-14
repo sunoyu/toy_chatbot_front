@@ -9,22 +9,21 @@
         />
 
         <v-list-item
-          v-for="room in chatStore.chatRooms"
+          v-for="room in chatRooms"
           :key="room.id"
           :title="room.name"
-          @click="chatStore.selectedRoomId = room.id"
-          :active="chatStore.selectedRoomId === room.id"
+          @click="selectedRoomId = room.id"
+          :active="selectedRoomId === room.id"
+        />
+        <v-btn
+          icon
+          @click="deleteCurrentRoom"
+          density="compact"
+          color="error"
+          class="ml-2"
         >
-          <v-btn
-            icon
-            @click="deleteCurrentRoom"
-            density="compact"
-            color="error"
-            class="ml-2"
-          >
-            <v-icon>mdi-delete</v-icon>
-          </v-btn>
-        </v-list-item>
+          <v-icon>mdi-delete</v-icon>
+        </v-btn>
       </v-list>
     </v-navigation-drawer>
 
@@ -49,6 +48,7 @@ import { computed, ref, watch } from "vue";
 import ChatMessages from "./ChatMessages.vue";
 import ChatInput from "./ChatInput.vue";
 import { useChatStores } from "@/stores/chat";
+import { storeToRefs } from "pinia";
 
 // const messages = ref([
 //   { role: "user", text: "안녕하세요!" },
@@ -56,11 +56,11 @@ import { useChatStores } from "@/stores/chat";
 // ]);
 
 const chatStore = useChatStores();
+const { chatRooms, selectedRoomId } = storeToRefs(chatStore); // 구조분해  - → storeToRefs()는 반응성 유지하면서 꺼내는 helper 함수야. 💡 참고: storeToRefs()로 구조 분해했을 때는 .value는 꼭 써야 함
 
 const currentMessages = computed(() => {
   return (
-    chatStore.chatRooms.find((r) => r.id === chatStore.selectedRoomId)
-      ?.messages || []
+    chatRooms.value.find((r) => r.id === selectedRoomId.value)?.messages || []
   );
 });
 
@@ -72,21 +72,21 @@ function handleNewRoom() {
   chatStore.addRoom();
 }
 
-const chatRooms = ref([
-  {
-    id: 1,
-    name: "Consulting",
-    messages: [{ role: "user", text: "배송 언제오나요" }],
-  },
-  {
-    id: 2,
-    name: "기술 지원",
-    messages: [
-      { role: "user", text: "로그인이 안되요." },
-      { role: "bot", text: "비밀번호를 재설정 해보세요." },
-    ],
-  },
-]);
+// const chatRooms = ref([
+//   {
+//     id: 1,
+//     name: "Consulting",
+//     messages: [{ role: "user", text: "배송 언제오나요" }],
+//   },
+//   {
+//     id: 2,
+//     name: "기술 지원",
+//     messages: [
+//       { role: "user", text: "로그인이 안되요." },
+//       { role: "bot", text: "비밀번호를 재설정 해보세요." },
+//     ],
+//   },
+// ]);
 
 const stored = localStorage.getItem("chatRooms");
 if (stored) {
@@ -135,27 +135,27 @@ watch(
 //   }, 1500);
 // }
 
-function getCurrentTime() {
-  const now = new Date();
-  return now.toLocaleTimeString("ko-KR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-function addNewRoom() {
-  const newId = Math.max(...chatRooms.value.map((r) => r.id)) + 1;
-  // map → [1, 5, 3]
-  // Math.max(...[1, 5, 3]) → 5
-  // newId = 5 + 1 = 6
+// function getCurrentTime() {
+//   const now = new Date();
+//   return now.toLocaleTimeString("ko-KR", {
+//     hour: "2-digit",
+//     minute: "2-digit",
+//   });
+// }
+// function addNewRoom() {
+//   const newId = Math.max(...chatRooms.value.map((r) => r.id)) + 1;
+//   // map → [1, 5, 3]
+//   // Math.max(...[1, 5, 3]) → 5
+//   // newId = 5 + 1 = 6
 
-  const newRoom = {
-    id: newId,
-    name: `새 대화 ${newId}`,
-    messages: [],
-  };
-  chatRooms.value.push(newRoom);
-  selectedRoomId.value = newId;
-}
+//   const newRoom = {
+//     id: newId,
+//     name: `새 대화 ${newId}`,
+//     messages: [],
+//   };
+//   chatRooms.value.push(newRoom);
+//   selectedRoomId.value = newId;
+// }
 
 function deleteCurrentRoom() {
   const index = chatRooms.value.findIndex((r) => r.id === selectedRoomId.value);
