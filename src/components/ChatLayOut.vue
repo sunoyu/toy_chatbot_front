@@ -4,16 +4,16 @@
       <v-list>
         <v-list-item
           title="➕ 새 대화 시작"
-          @click="addNewRoom"
+          @click="handleNewRoom"
           class="text-primary"
         />
 
         <v-list-item
-          v-for="room in chatRooms"
+          v-for="room in chatStore.chatRooms"
           :key="room.id"
           :title="room.name"
-          @click="selectedRoomId = room.id"
-          :active="selectedRoomId === room.id"
+          @click="chatStore.selectedRoomId = room.id"
+          :active="chatStore.selectedRoomId === room.id"
         >
           <v-btn
             icon
@@ -33,10 +33,10 @@
         <v-row class="fill-height">
           <v-col class="d-flex flex-column fill-height">
             <ChatMessages
-              :messages="currentMessage"
+              :messages="currentMessages"
               class="flex-grow-1 overflow-y-auto mb-4"
             />
-            <ChatInput @send="addMessage" />
+            <ChatInput @send="handleSend" />
           </v-col>
         </v-row>
       </v-container>
@@ -48,11 +48,29 @@
 import { computed, ref, watch } from "vue";
 import ChatMessages from "./ChatMessages.vue";
 import ChatInput from "./ChatInput.vue";
+import { useChatStores } from "@/stores/chat";
 
 // const messages = ref([
 //   { role: "user", text: "안녕하세요!" },
 //   { role: "bot", text: "안녕하세요, 무엇을 도와드릴까요?" },
 // ]);
+
+const chatStore = useChatStores();
+
+const currentMessages = computed(() => {
+  return (
+    chatStore.chatRooms.find((r) => r.id === chatStore.selectedRoomId)
+      ?.messages || []
+  );
+});
+
+function handleSend(text) {
+  chatStore.addMessage(text);
+}
+
+function handleNewRoom() {
+  chatStore.addRoom();
+}
 
 const chatRooms = ref([
   {
@@ -83,39 +101,39 @@ watch(
   { deep: true }
 );
 
-const selectedRoomId = ref(1);
+// const selectedRoomId = ref(1);
 
-const currentMessage = computed(() => {
-  return (
-    chatRooms.value.find((r) => r.id === selectedRoomId.value)?.messages || []
-  );
-});
+// const currentMessage = computed(() => {
+//   return (
+//     chatRooms.value.find((r) => r.id === selectedRoomId.value)?.messages || []
+//   );
+// });
 
-function addMessage(text) {
-  const room = chatRooms.value.find((r) => r.id === selectedRoomId.value);
-  if (!room) return;
+// function addMessage(text) {
+//   const room = chatRooms.value.find((r) => r.id === selectedRoomId.value);
+//   if (!room) return;
 
-  room.messages.push({ role: "user", text, time: getCurrentTime() });
+//   room.messages.push({ role: "user", text, time: getCurrentTime() });
 
-  const loadingMessage = {
-    role: "bot",
-    isLoading: true,
-    time: getCurrentTime(),
-  };
-  room.messages.push(loadingMessage);
+//   const loadingMessage = {
+//     role: "bot",
+//     isLoading: true,
+//     time: getCurrentTime(),
+//   };
+//   room.messages.push(loadingMessage);
 
-  // 봇 응답 시뮬레이션
-  setTimeout(() => {
-    const index = room.messages.indexOf(loadingMessage);
-    if (index !== -1) {
-      room.messages[index] = {
-        role: "bot",
-        text: "네, 어떤 도움이 필요하신가요?",
-        time: getCurrentTime(),
-      };
-    }
-  }, 1500);
-}
+//   // 봇 응답 시뮬레이션
+//   setTimeout(() => {
+//     const index = room.messages.indexOf(loadingMessage);
+//     if (index !== -1) {
+//       room.messages[index] = {
+//         role: "bot",
+//         text: "네, 어떤 도움이 필요하신가요?",
+//         time: getCurrentTime(),
+//       };
+//     }
+//   }, 1500);
+// }
 
 function getCurrentTime() {
   const now = new Date();
