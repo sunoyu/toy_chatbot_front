@@ -39,6 +39,13 @@ export const useChatStores = defineStore("chat", () => {
     }, 1500);
   }
 
+  const addMessageToRoom = (roomId, message) => {
+    const room = chatRooms.value.find((r) => r.id === roomId);
+    if (room) {
+      room.messages.push(message);
+    }
+  };
+
   function getCurrentTime() {
     const now = new Date();
     return now.toLocaleTimeString("ko-KR", {
@@ -52,5 +59,6 @@ export const useChatStores = defineStore("chat", () => {
     selectedRoomId,
     addRoom,
     addMessage,
+    addMessageToRoom,
   };
 });

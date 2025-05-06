@@ -44,11 +44,12 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, onBeforeUnmount, watch } from "vue";
 import ChatMessages from "./ChatMessages.vue";
 import ChatInput from "./ChatInput.vue";
 import { useChatStores } from "@/stores/chat";
 import { storeToRefs } from "pinia";
+import WebSocketService from "@/services/WebSocketService";
 
 // const messages = ref([
 //   { role: "user", text: "안녕하세요!" },
@@ -64,8 +65,22 @@ const currentMessages = computed(() => {
   );
 });
 
+watch(selectedRoomId, (newRoomId) => {
+  if (!newRoomId) return;
+
+  WebSocketService.disconnect();
+  WebSocketService.connect(newRoomId, (msg) => {
+    chatStore.addMessageToRoom(newRoomId, msg);
+  });
+});
+
 function handleSend(text) {
-  chatStore.addMessage(text);
+  chatStore.addMessage(text); // 로컬 반영
+  WebSocketService.sendMessage({
+    role: "user",
+    text,
+    time: new Date(),
+  });
 }
 
 function handleNewRoom() {
@@ -92,70 +107,16 @@ const stored = localStorage.getItem("chatRooms");
 if (stored) {
   chatRooms.value = JSON.parse(stored);
 }
+onMounted(() => {
+  WebSocketService.connect(selectedRoomId.value, (msg) => {
+    console.log("[✅ 콜백 메시지 도착]", msg);
+    chatStore.addMessageToRoom(selectedRoomId.value, msg);
+  });
+});
 
-watch(
-  chatRooms,
-  (newVal) => {
-    localStorage.setItem("chatRooms", JSON.stringify(newVal));
-  },
-  { deep: true }
-);
-
-// const selectedRoomId = ref(1);
-
-// const currentMessage = computed(() => {
-//   return (
-//     chatRooms.value.find((r) => r.id === selectedRoomId.value)?.messages || []
-//   );
-// });
-
-// function addMessage(text) {
-//   const room = chatRooms.value.find((r) => r.id === selectedRoomId.value);
-//   if (!room) return;
-
-//   room.messages.push({ role: "user", text, time: getCurrentTime() });
-
-//   const loadingMessage = {
-//     role: "bot",
-//     isLoading: true,
-//     time: getCurrentTime(),
-//   };
-//   room.messages.push(loadingMessage);
-
-//   // 봇 응답 시뮬레이션
-//   setTimeout(() => {
-//     const index = room.messages.indexOf(loadingMessage);
-//     if (index !== -1) {
-//       room.messages[index] = {
-//         role: "bot",
-//         text: "네, 어떤 도움이 필요하신가요?",
-//         time: getCurrentTime(),
-//       };
-//     }
-//   }, 1500);
-// }
-
-// function getCurrentTime() {
-//   const now = new Date();
-//   return now.toLocaleTimeString("ko-KR", {
-//     hour: "2-digit",
-//     minute: "2-digit",
-//   });
-// }
-// function addNewRoom() {
-//   const newId = Math.max(...chatRooms.value.map((r) => r.id)) + 1;
-//   // map → [1, 5, 3]
-//   // Math.max(...[1, 5, 3]) → 5
-//   // newId = 5 + 1 = 6
-
-//   const newRoom = {
-//     id: newId,
-//     name: `새 대화 ${newId}`,
-//     messages: [],
-//   };
-//   chatRooms.value.push(newRoom);
-//   selectedRoomId.value = newId;
-// }
+onBeforeUnmount(() => {
+  WebSocketService.disconnect();
+});
 
 function deleteCurrentRoom() {
   const index = chatRooms.value.findIndex((r) => r.id === selectedRoomId.value);
