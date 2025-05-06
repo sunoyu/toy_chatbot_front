@@ -14,6 +14,7 @@
 </template>
 
 <script setup>
+import WebSocketService from "@/services/WebSocketService";
 import { ref } from "vue";
 const emit = defineEmits(["send"]);
 const input = ref("");
@@ -25,4 +26,15 @@ function send() {
   emit("send", trimed);
   input.value = "";
 }
+
+WebSocketService.connect(roomId, (message) => {
+  console.log("Received message:", message);
+  // store.push(msg) 또는 messages.value.push(msg) 등으로 반영
+});
+
+WebSocketService.sendMessage(roomId, {
+  role: "user",
+  text: input.value,
+  time: new Date(),
+});
 </script>
