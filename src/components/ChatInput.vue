@@ -4,7 +4,9 @@
       <v-text-field
         v-model="input"
         label="메시지를 입력하세요"
-        @keydown.enter.prevent.stop="send"
+        @compositionstart="isComposing = true"
+        @compositionend="onCompositionEnd"
+        @keyup.enter.prevent.stop="onEnter"
       />
     </v-col>
     <v-col cols="2">
@@ -17,6 +19,7 @@
 import { ref } from "vue";
 const emit = defineEmits(["send"]);
 const input = ref("");
+const isComposing = ref(false);
 
 function send() {
   const trimed = input.value.trim();
@@ -24,5 +27,16 @@ function send() {
   if (!trimed) return;
   emit("send", trimed);
   input.value = "";
+}
+
+function onEnter() {
+  // 한글/일본어 등 IME 조합 중 Enter는 무시
+  if (isComposing.value) return;
+  send();
+}
+
+function onCompositionEnd() {
+  // 조합 입력 종료 표시
+  isComposing.value = false;
 }
 </script>

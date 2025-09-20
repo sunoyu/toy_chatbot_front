@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <div class="chat-layout">
     <v-navigation-drawer app permanent width="250">
       <v-list>
         <v-list-item
@@ -28,19 +28,24 @@
     </v-navigation-drawer>
 
     <v-main>
-      <v-container fluid class="fill-height pa-4">
-        <v-row class="fill-height">
-          <v-col class="d-flex flex-column fill-height">
+      <v-container fluid class="pa-4 h-100 d-flex">
+        <v-row class="h-100 flex-grow-1">
+          <v-col class="d-flex flex-column h-100">
             <ChatMessages
               :messages="currentMessages"
-              class="flex-grow-1 overflow-y-auto mb-4"
+              class="flex-grow-1 overflow-y-auto"
             />
-            <ChatInput @send="handleSend" />
           </v-col>
         </v-row>
       </v-container>
     </v-main>
-  </v-app>
+
+    <v-footer app elevation="2" class="pa-2">
+      <v-container fluid class="py-0">
+        <ChatInput @send="handleSend" />
+      </v-container>
+    </v-footer>
+  </div>
 </template>
 
 <script setup>
